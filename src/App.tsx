@@ -184,8 +184,8 @@ export default function App() {
         className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none transition-all duration-500"
         style={{
           backgroundImage: gameState === 'INTRO'
-            ? 'url("/src/assets/background.png")'
-            : 'url("/src/assets/bg2.png")',
+            ? 'url("/background.png")'
+            : 'url("/bg2.png")',
           filter: gameState === 'INTRO' ? 'brightness(1)' : 'brightness(0.5)',
           opacity: gameState === 'INTRO' ? '1' : '0.8'
         }}
