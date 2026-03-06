@@ -51,16 +51,16 @@ async function startServer() {
     }
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  // Production static serving (if needed, but usually handled by build output)
+  if (process.env.NODE_ENV === "production") {
+    app.use(express.static('dist'));
+  } else {
+    // Vite middleware for development
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    // Production static serving (if needed, but usually handled by build output)
-    app.use(express.static('dist'));
   }
 
   app.listen(PORT, "0.0.0.0", () => {

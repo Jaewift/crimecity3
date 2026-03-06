@@ -1,10 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export async function POST(req: NextRequest) {
-  const { text, apiKey, modelId } = await req.json();
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { text, apiKey, modelId } = req.body;
 
   if (!text || !apiKey || !modelId) {
-    return NextResponse.json({ error: "Missing required parameters" }, { status: 400 });
+    return res.status(400).json({ error: "Missing required parameters" });
   }
 
   try {
@@ -26,24 +30,15 @@ export async function POST(req: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Fish Audio API Error:", response.status, errorText);
-      return NextResponse.json({ error: errorText }, { status: response.status });
+      return res.status(response.status).send(errorText);
     }
 
     const buffer = await response.arrayBuffer();
-    return new NextResponse(buffer, {
-      status: 200,
-      headers: {
-        'Content-Type': 'audio/mpeg',
-      },
-    });
+    res.setHeader('Content-Type', 'audio/mpeg');
+    return res.send(Buffer.from(buffer));
 
   } catch (error) {
     console.error("Proxy Error:", error);
-    return NextResponse.json({ error: "Failed to fetch from Fish Audio" }, { status: 500 });
+    return res.status(500).json({ error: "Failed to fetch from Fish Audio" });
   }
 }
-
-export const config = {
-  runtime: 'nodejs',
-  maxDuration: 30,
-};
